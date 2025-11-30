@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Project, ProjectTab, TaxMode, AppSettings } from '../types';
 import { QuoteEditor } from './QuoteEditor';
 import { InvoiceEditor } from './InvoiceEditor';
 import { CostTracker } from './CostTracker';
-import { ArrowLeft, Edit2, MapPin, User, Save, Tag } from 'lucide-react';
+import { ArrowLeft, Edit2, MapPin, User, Save, Tag, X, Plus } from 'lucide-react';
 
 interface ProjectDetailProps {
   project: Project;
@@ -15,13 +16,17 @@ interface ProjectDetailProps {
 export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate, onBack, settings }) => {
   const [activeTab, setActiveTab] = useState<ProjectTab>('quote');
   const [isEditingHeader, setIsEditingHeader] = useState(false);
+  
   const [editForm, setEditForm] = useState({
     name: project.name,
     client: project.client,
     location: project.location,
     taxMode: project.taxMode,
     status: project.status,
-    projectType: project.projectType || settings.projectTypes[0]
+    // Initialize array, defaulting to existing single type if array is empty (migration safety)
+    projectTypes: project.projectTypes && project.projectTypes.length > 0 
+      ? project.projectTypes 
+      : (project.projectType ? [project.projectType] : [])
   });
 
   const saveHeader = () => {
@@ -31,6 +36,24 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
       lastModified: Date.now()
     });
     setIsEditingHeader(false);
+  };
+
+  const addProjectType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    if (value && !editForm.projectTypes.includes(value)) {
+      setEditForm(prev => ({
+        ...prev,
+        projectTypes: [...prev.projectTypes, value]
+      }));
+    }
+    // Reset select to default/placeholder if needed, but select value is controlled below
+  };
+
+  const removeProjectType = (typeToRemove: string) => {
+    setEditForm(prev => ({
+      ...prev,
+      projectTypes: prev.projectTypes.filter(t => t !== typeToRemove)
+    }));
   };
 
   const TabButton = ({ id, label }: { id: ProjectTab; label: string }) => (
@@ -45,6 +68,11 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
       {label}
     </button>
   );
+
+  // Ensure types array exists for display
+  const displayTypes = project.projectTypes && project.projectTypes.length > 0 
+    ? project.projectTypes 
+    : (project.projectType ? [project.projectType] : []);
 
   return (
     <div className="flex flex-col h-screen bg-zinc-950 print:bg-white print:h-auto print:block">
@@ -81,18 +109,40 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
                   onChange={e => setEditForm({...editForm, location: e.target.value})} 
                 />
               </div>
-              <div className="col-span-1">
-                <label className="block text-xs text-zinc-500 mb-1">案件類型</label>
-                <select 
-                  className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-sm text-white"
-                  value={editForm.projectType}
-                  onChange={e => setEditForm({...editForm, projectType: e.target.value})}
-                >
-                  {settings.projectTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
+              
+              {/* Multi-Select Project Types */}
+              <div className="col-span-2">
+                <label className="block text-xs text-zinc-500 mb-1">案件類型 (可複選)</label>
+                <div className="flex flex-wrap gap-2 p-2 bg-zinc-900 border border-zinc-700 rounded min-h-[38px]">
+                  {editForm.projectTypes.map(type => (
+                    <span key={type} className="bg-zinc-800 text-zinc-200 text-xs px-2 py-1 rounded flex items-center gap-1">
+                      {type}
+                      <button 
+                        onClick={() => removeProjectType(type)}
+                        className="text-zinc-500 hover:text-red-400"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
                   ))}
-                </select>
+                  
+                  <div className="relative">
+                     <select 
+                      className="bg-transparent text-teal-400 text-xs focus:outline-none cursor-pointer pr-4 appearance-none hover:text-teal-300"
+                      onChange={addProjectType}
+                      value=""
+                    >
+                      <option value="" disabled>+ 新增標籤</option>
+                      {settings.projectTypes.map(type => (
+                        <option key={type} value={type} disabled={editForm.projectTypes.includes(type)}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
+
               <div className="col-span-1">
                 <label className="block text-xs text-zinc-500 mb-1">稅制模式</label>
                 <select 
@@ -117,10 +167,10 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
                   <option value="archived">封存</option>
                 </select>
               </div>
-              <div className="col-span-2 md:col-span-2 flex justify-end gap-2 mt-auto">
+              <div className="col-span-2 md:col-span-4 flex justify-end gap-2 mt-auto border-t border-zinc-800 pt-3">
                  <button onClick={() => setIsEditingHeader(false)} className="px-3 py-1 text-sm text-zinc-400 hover:text-white">取消</button>
                  <button onClick={saveHeader} className="px-4 py-1 text-sm bg-teal-600 hover:bg-teal-500 text-white rounded flex items-center gap-2">
-                   <Save size={14} /> 儲存
+                   <Save size={14} /> 儲存變更
                  </button>
               </div>
             </div>
@@ -133,10 +183,22 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
                     <Edit2 size={16} />
                   </button>
                 </h1>
-                <div className="flex items-center gap-6 mt-2 text-sm text-zinc-400">
+                <div className="flex items-center gap-6 mt-2 text-sm text-zinc-400 flex-wrap">
                   <span className="flex items-center gap-2"><User size={14} /> {project.client}</span>
                   <span className="flex items-center gap-2"><MapPin size={14} /> {project.location}</span>
-                  <span className="flex items-center gap-2 text-zinc-500"><Tag size={14} /> {project.projectType || '未分類'}</span>
+                  
+                  {displayTypes.length > 0 ? (
+                     <div className="flex gap-1">
+                       {displayTypes.map(type => (
+                         <span key={type} className="flex items-center gap-1 text-zinc-400 bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-xs">
+                           <Tag size={12} /> {type}
+                         </span>
+                       ))}
+                     </div>
+                  ) : (
+                    <span className="flex items-center gap-2 text-zinc-500"><Tag size={14} /> 未分類</span>
+                  )}
+
                   <span className="px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-xs uppercase tracking-wide">
                     {project.taxMode === 'vat5' ? '營業稅 5% (內含)' : project.taxMode === 'wht10' ? '扣繳 10%' : '不計稅'}
                   </span>

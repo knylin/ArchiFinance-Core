@@ -24,12 +24,12 @@ export const Reports: React.FC<ReportsProps> = ({ projects }) => {
 
     projects.forEach(p => {
       // Contract
-      const base = p.quote.categories.reduce((sum, c) => sum + c.items.reduce((s, i) => s + (i.amount||0), 0), 0);
+      const base = p.quote.categories.reduce((sum, c) => sum + c.items.reduce((s, i) => s + (Number(i.amount)||0), 0), 0);
       totalContract += (p.quote.customRealTotal ?? base);
 
       // Revenue (Invoices)
       p.invoices.forEach(inv => {
-        const amount = inv.totalService + inv.totalExpense;
+        const amount = Number(inv.totalService) + Number(inv.totalExpense);
         totalRevenue += amount;
         
         // Monthly breakdown
@@ -39,16 +39,17 @@ export const Reports: React.FC<ReportsProps> = ({ projects }) => {
 
       // Costs
       p.costs.forEach(c => {
-        totalCost += c.amount;
+        const amount = Number(c.amount);
+        totalCost += amount;
         if (costDistribution[c.category] !== undefined) {
-          costDistribution[c.category] += c.amount;
+          costDistribution[c.category] += amount;
         }
       });
     });
 
     // Sort months
     const sortedMonths = Object.keys(monthlyRevenue).sort().slice(-12); // Last 12 months active
-    const chartData = sortedMonths.map(m => ({ month: m, amount: monthlyRevenue[m] }));
+    const chartData = sortedMonths.map(m => ({ month: m, amount: monthlyRevenue[m] || 0 }));
 
     return {
       totalContract,
@@ -144,7 +145,7 @@ export const Reports: React.FC<ReportsProps> = ({ projects }) => {
              <h3 className="text-lg font-semibold mb-6">成本結構分析</h3>
              <div className="space-y-4">
                {Object.entries(summary.costDistribution).map(([cat, amount]) => {
-                 const percentage = summary.totalCost > 0 ? (amount / summary.totalCost) * 100 : 0;
+                 const percentage = summary.totalCost > 0 ? (Number(amount) / summary.totalCost) * 100 : 0;
                  const label = cat === 'Subcontractor' ? '複委託/外包' : 
                                cat === 'GovFee' ? '規費' :
                                cat === 'Printing' ? '圖說印製' :
@@ -153,7 +154,7 @@ export const Reports: React.FC<ReportsProps> = ({ projects }) => {
                    <div key={cat}>
                      <div className="flex justify-between text-sm mb-1">
                        <span className="text-zinc-400">{label}</span>
-                       <span className="font-mono text-zinc-200">${amount.toLocaleString()} ({percentage.toFixed(1)}%)</span>
+                       <span className="font-mono text-zinc-200">${Number(amount).toLocaleString()} ({percentage.toFixed(1)}%)</span>
                      </div>
                      <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden">
                        <div 

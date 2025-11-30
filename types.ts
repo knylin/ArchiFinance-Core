@@ -1,3 +1,4 @@
+
 export type TaxMode = 'none' | 'vat5' | 'wht10';
 
 export interface QuoteItem {
@@ -58,7 +59,9 @@ export interface Project {
   name: string;
   client: string;
   location: string;
-  projectType?: string; // New field for project classification
+  projectTypes: string[]; // Changed from projectType?: string to string[]
+  // Legacy field for backward compatibility during migration, can be ignored in new logic
+  projectType?: string; 
   status: 'active' | 'archived' | 'completed';
   taxMode: TaxMode;
   createdAt: number;

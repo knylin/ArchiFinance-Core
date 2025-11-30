@@ -6,77 +6,62 @@
 
 ## 🌟 專案簡介
 
-ArchiFinance Core 是一個基於 React 開發的單頁應用程式 (SPA)，專注於解決建築專案的報價、分期請款與成本追蹤問題。
+ArchiFinance Core 是一個現代化的建築專案財務管理工具。本版本支援打包為 Windows 應用程式 (.exe)，可完全離線使用。
 
 **特色：**
-*   **完全離線**：資料儲存於瀏覽器 LocalStorage，無需連網。
-*   **資料隱私**：資料不出您的電腦。
+*   **完全離線**：資料儲存於本地檔案系統與 LocalStorage，斷網也能操作。
+*   **桌面應用程式**：提供安裝版與免安裝版 (Portable) EXE。
 *   **A4 輸出**：自動排版的報價單與請款單 PDF 預覽。
 *   **成本損益**：即時計算專案淨利。
 
 ---
 
-## 💻 如何在電腦上安裝 (單機版部署)
+## 🚀 快速開始
 
-由於現代瀏覽器的安全性限制，本系統建議透過輕量級伺服器啟動，而非直接點擊 html 檔案。
+### 1. 安裝環境
+請確保電腦已安裝 **[Node.js](https://nodejs.org/)** (版本 18 或以上)。
 
-### 步驟 1：安裝環境
-1. 下載並安裝 **[Node.js](https://nodejs.org/)** (建議選擇 LTS 版本)。
-2. 下載本專案程式碼至您的電腦。
-
-### 步驟 2：安裝依賴與打包
-在專案資料夾中開啟終端機 (Terminal / CMD)，執行以下指令：
+### 2. 下載與安裝依賴
+在專案目錄下開啟終端機：
 
 ```bash
-# 1. 安裝程式所需的套件
+# 安裝所有必要套件
 npm install
-
-# 2. 編譯成可執行的靜態檔案 (會產生 dist 資料夾)
-npm run build
 ```
 
-### 步驟 3：製作「一鍵啟動」圖示
+### 3. 開發模式 (Development)
+同時啟動 React 網頁伺服器與 Electron 視窗：
 
-為了方便日後使用，您可以製作一個啟動腳本，放在桌面上。
-
-#### 🪟 Windows 使用者
-
-1. 在專案資料夾中，建立一個新文字文件。
-2. 貼上以下內容：
-   ```batch
-   @echo off
-   echo 正在啟動 ArchiFinance Core...
-   cd /d "%~dp0"
-   npm run preview
-   ```
-3. 將檔案另存為 `啟動系統.bat` (注意副檔名要是 .bat)。
-4. 以後只需點擊這個檔案，系統就會自動啟動並打開瀏覽器。
-
-#### 🍎 Mac 使用者
-
-1. 開啟終端機，進入專案目錄。
-2. 執行 `npm run preview` 即可啟動。
-3. 若要製作自動腳本，可建立 `start.command` 檔案：
-   ```bash
-   #!/bin/bash
-   cd "$(dirname "$0")"
-   npm run preview
-   ```
-4. 記得執行 `chmod +x start.command` 給予執行權限。
+```bash
+npm run electron:dev
+```
 
 ---
 
-## 🛠️ 開發模式
+## 📦 打包成 EXE 執行檔
 
-如果您是開發者，想要修改程式碼：
+若要將程式打包成可在其他電腦執行的檔案：
 
 ```bash
-npm run dev
+npm run build:exe
 ```
+
+打包完成後，請前往 `dist_electron` 資料夾，您會看到：
+
+1.  **ArchiFinance Core Setup 1.2.0.exe**: 安裝檔 (會安裝到開始選單)。
+2.  **ArchiFinance Core 1.2.0.exe**: 免安裝版 (Portable)，直接點擊即可執行，適合放在隨身碟。
+
+---
 
 ## ⚠️ 資料備份提醒
 
-本系統採用 **LocalStorage** 技術。
-*   **風險**：清除瀏覽器快取或重灌電腦會導致資料遺失。
-*   **建議**：請定期使用系統右上角的「匯出 JSON」功能進行備份。
+雖然此為單機版軟體，但為了資料安全：
+*   請定期使用系統右上角的「匯出 JSON」功能進行備份。
+*   若要在不同電腦間轉移資料，請先「匯出」成 JSON，再到新電腦上「匯入」。
 
+---
+
+## 🛠️ 技術架構
+*   **Frontend**: React + Vite + TypeScript
+*   **Styling**: Tailwind CSS
+*   **Desktop Shell**: Electron + Electron Builder

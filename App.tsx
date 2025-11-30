@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Project, ViewState, AppSettings } from './types';
 import { Layout } from './components/Layout';
@@ -120,7 +121,7 @@ const App: React.FC = () => {
     e.target.value = '';
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     // Feature 1: Auto-numbered filename based on date/time
     const now = new Date();
     // Format: YYYYMMDD_HHmmss
@@ -132,14 +133,43 @@ const App: React.FC = () => {
       now.getSeconds().toString().padStart(2, '0');
 
     const filename = `ArchiFinance_Backup_${timestamp}.json`;
+    const jsonString = JSON.stringify(projects, null, 2);
 
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projects));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", filename);
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    try {
+      // Check for File System Access API support (Chrome, Edge, Opera)
+      if ('showSaveFilePicker' in window) {
+        // @ts-ignore - TypeScript might not know about this API yet
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'JSON Backup File',
+            accept: { 'application/json': ['.json'] },
+          }],
+        });
+        
+        // Create a writable stream to the file
+        const writable = await handle.createWritable();
+        await writable.write(jsonString);
+        await writable.close();
+        
+        alert('備份已成功儲存至指定路徑！');
+      } else {
+        // Fallback for browsers not supporting the API (Firefox, Safari)
+        throw new Error('Not supported');
+      }
+    } catch (err: any) {
+      // If user cancelled the picker, do nothing
+      if (err.name === 'AbortError') return;
+
+      // Use traditional download method as fallback
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonString);
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", filename);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }
 
     updateChangesState(false); // Reset dirty state after export
   };

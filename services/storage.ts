@@ -1,3 +1,4 @@
+
 import { Project, AppSettings } from '../types';
 
 const STORAGE_KEY = 'archifinance_projects_v1';
@@ -15,7 +16,16 @@ export const saveProjects = (projects: Project[]) => {
 export const loadProjects = (): Project[] => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    const projects = data ? JSON.parse(data) : [];
+    
+    // Migration: Ensure projectTypes array exists for old data
+    return projects.map((p: any) => {
+      if (!p.projectTypes) {
+        // If legacy projectType exists, move it to array
+        p.projectTypes = p.projectType ? [p.projectType] : [];
+      }
+      return p as Project;
+    });
   } catch (e) {
     console.error('Failed to load projects', e);
     return [];
@@ -33,7 +43,13 @@ export const fetchProjectsFromServer = async (): Promise<Project[]> => {
     }
     const json = await response.json();
     if (Array.isArray(json)) {
-      return json;
+      // Migration for server data as well
+      return json.map((p: any) => {
+        if (!p.projectTypes) {
+          p.projectTypes = p.projectType ? [p.projectType] : [];
+        }
+        return p as Project;
+      });
     } else {
       throw new Error('Invalid JSON format');
     }
@@ -141,7 +157,7 @@ export const createEmptyProject = (): Project => ({
   name: '新專案',
   client: '業主名稱',
   location: '台北市, 台灣',
-  projectType: '私人住宅',
+  projectTypes: ['私人住宅'], // Default as array
   status: 'active',
   taxMode: 'vat5',
   createdAt: Date.now(),

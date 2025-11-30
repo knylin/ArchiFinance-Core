@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Project } from '../types';
 import { Plus, Download, Upload, Search, ChevronRight, FileText, Trash2, Archive, RefreshCcw, Tag, Filter } from 'lucide-react';
@@ -63,8 +64,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
       if (viewTab === 'active' && isArchived) return false;
       if (viewTab === 'archived' && !isArchived) return false;
 
-      // Project Type Filter
-      if (selectedType !== 'all' && p.projectType !== selectedType) return false;
+      // Project Type Filter (Multi-select support: checks if array includes selected type)
+      if (selectedType !== 'all') {
+        const types = p.projectTypes || [];
+        if (!types.includes(selectedType)) return false;
+      }
 
       // Search Filter
       const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -199,6 +203,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 statusColor = 'border-blue-900 bg-blue-900/30 text-blue-400';
               }
 
+              // Handle backward compatibility for display
+              const types = project.projectTypes || (project.projectType ? [project.projectType] : []);
+
               return (
                 <div 
                   key={project.id} 
@@ -224,12 +231,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <span>{project.client}</span>
                         <span className="w-1 h-1 rounded-full bg-zinc-700"></span>
                         <span>{project.location}</span>
-                        {project.projectType && (
+                        
+                        {types.length > 0 && (
                           <>
                             <span className="w-1 h-1 rounded-full bg-zinc-700"></span>
-                            <span className="flex items-center gap-1 text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">
-                              <Tag size={12} /> {project.projectType}
-                            </span>
+                            <div className="flex gap-1 flex-wrap">
+                              {types.map(t => (
+                                <span key={t} className="flex items-center gap-1 text-zinc-500 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">
+                                  <Tag size={12} /> {t}
+                                </span>
+                              ))}
+                            </div>
                           </>
                         )}
                       </div>
