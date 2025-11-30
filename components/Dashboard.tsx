@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Project } from '../types';
-import { Plus, Download, Upload, Search, ChevronRight, FileText, Trash2, Archive, RefreshCcw, Tag, Filter, Share } from 'lucide-react';
+import { Plus, Download, Upload, Search, ChevronRight, FileText, Trash2, Archive, RefreshCcw, Tag, Filter, Share, Copy } from 'lucide-react';
 
 interface DashboardProps {
   projects: Project[];
@@ -11,7 +11,8 @@ interface DashboardProps {
   onDeleteProject: (id: string) => void;
   onImport: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExport: () => void;
-  onExportSingle: (project: Project) => void; // New prop
+  onExportSingle: (project: Project) => void;
+  onDuplicateProject: (id: string) => void; // New prop
   onUpdateProject: (project: Project) => void;
 }
 
@@ -24,6 +25,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onImport,
   onExport,
   onExportSingle,
+  onDuplicateProject,
   onUpdateProject
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -278,6 +280,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         title="匯出單一專案 JSON"
                       >
                         <Share size={18} />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDuplicateProject(project.id);
+                        }}
+                        className="p-2 text-zinc-600 hover:text-blue-400 hover:bg-zinc-800 rounded-full transition-colors"
+                        title="複製專案 (建立副本)"
+                      >
+                        <Copy size={18} />
                       </button>
                        <button 
                         onClick={(e) => toggleArchive(e, project)}

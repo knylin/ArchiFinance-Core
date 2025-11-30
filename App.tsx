@@ -87,6 +87,42 @@ const App: React.FC = () => {
     updateChangesState(true);
   };
 
+  const handleDuplicateProject = (id: string) => {
+    const original = projects.find(p => p.id === id);
+    if (!original) return;
+
+    // Deep copy and reset execution data (invoices, costs, dates)
+    // We regenerate IDs for internal items to avoid React key collisions
+    const newProject: Project = {
+      ...JSON.parse(JSON.stringify(original)), // Deep copy basic fields
+      id: crypto.randomUUID(),
+      name: `${original.name} (副本)`,
+      status: 'active',
+      createdAt: Date.now(),
+      lastModified: Date.now(),
+      invoices: [], // Reset execution data
+      costs: [],    // Reset execution data
+      quote: {
+        ...original.quote,
+        // Regenerate IDs for Categories and Items
+        categories: original.quote.categories.map(cat => ({
+          ...cat,
+          id: crypto.randomUUID(),
+          items: cat.items.map(item => ({...item, id: crypto.randomUUID()}))
+        })),
+        // Regenerate IDs for Payment Terms
+        paymentTerms: original.quote.paymentTerms.map(term => ({
+          ...term,
+          id: crypto.randomUUID()
+        }))
+      }
+    };
+
+    setProjects(prev => [newProject, ...prev]);
+    alert(`已建立專案副本：「${newProject.name}」`);
+    updateChangesState(true);
+  };
+
   const handleUpdateProject = (updated: Project) => {
     setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
     updateChangesState(true);
@@ -299,6 +335,7 @@ const App: React.FC = () => {
           onImport={handleImport}
           onExport={handleExport}
           onExportSingle={handleExportSingleProject}
+          onDuplicateProject={handleDuplicateProject}
           onUpdateProject={handleUpdateProject}
         />
       )}
