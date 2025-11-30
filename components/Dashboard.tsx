@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Project } from '../types';
-import { Plus, Download, Upload, Search, ChevronRight, FileText, Trash2, Archive, RefreshCcw, Tag, Filter, Share, Copy } from 'lucide-react';
+import { Plus, Download, Upload, Search, ChevronRight, FileText, Trash2, Archive, RefreshCcw, Tag, Filter, Share, Copy, AlertTriangle, X } from 'lucide-react';
 
 interface DashboardProps {
   projects: Project[];
@@ -31,6 +31,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [viewTab, setViewTab] = useState<'active' | 'archived'>('active');
   const [selectedType, setSelectedType] = useState('all');
+  
+  // Modal State for Deletion
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Calculations
   const calculateFinancials = (p: Project) => {
@@ -83,13 +86,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [projects, searchTerm, viewTab, selectedType]);
 
   const toggleArchive = (e: React.MouseEvent, project: Project) => {
+    e.preventDefault();
     e.stopPropagation();
     const newStatus = project.status === 'archived' ? 'active' : 'archived';
     onUpdateProject({ ...project, status: newStatus });
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, projectId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteTargetId(projectId);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTargetId) {
+      onDeleteProject(deleteTargetId);
+      setDeleteTargetId(null);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-zinc-950">
+    <div className="flex flex-col h-full overflow-hidden bg-zinc-950 relative">
       {/* Header */}
       <header className="px-6 py-5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/50 backdrop-blur-sm sticky top-0 z-10">
         <div>
@@ -190,11 +207,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="grid gap-4">
             {filteredProjects.map(project => {
               const fin = calculateFinancials(project);
-              // Smart Status Logic:
-              // 1. If manually archived -> '已封存' (Handled by Tab view usually, but good for label)
-              // 2. If progress >= 100 -> '已完成' (Auto)
-              // 3. If manually completed -> '已結案' (Manual)
-              // 4. Else -> '進行中'
               
               let statusLabel = '進行中';
               let statusColor = 'border-teal-900 bg-teal-900/30 text-teal-400';
@@ -299,10 +311,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         {project.status === 'archived' ? <RefreshCcw size={18} /> : <Archive size={18} />}
                       </button>
                        <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if(confirm('確定要刪除此專案嗎？此動作無法復原。')) onDeleteProject(project.id);
-                        }}
+                        onClick={(e) => handleDeleteClick(e, project.id)}
                         className="p-2 text-zinc-600 hover:text-red-400 hover:bg-zinc-800 rounded-full transition-colors"
                         title="刪除專案"
                       >
@@ -328,6 +337,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Custom Delete Confirmation Modal */}
+      {deleteTargetId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="text-red-500" size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">確定要刪除此專案？</h3>
+              <p className="text-zinc-400 text-sm">
+                刪除後所有與此專案相關的報價、請款單與支出紀錄將無法復原。
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setDeleteTargetId(null)}
+                className="flex-1 py-2.5 rounded-lg border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors text-sm font-medium"
+              >
+                取消
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-500 transition-colors text-sm font-medium shadow-lg shadow-red-900/20"
+              >
+                確認刪除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

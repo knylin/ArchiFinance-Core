@@ -202,8 +202,12 @@ const App: React.FC = () => {
   };
 
   const saveFile = async (filename: string, content: string) => {
-     try {
-      if ('showSaveFilePicker' in window) {
+    // Create Blob to ensure content is handled correctly and prevent empty files
+    const blob = new Blob([content], { type: 'application/json' });
+
+    // Attempt to use File System Access API (Save As Dialog)
+    if ('showSaveFilePicker' in window) {
+      try {
         // @ts-ignore
         const handle = await (window as any).showSaveFilePicker({
           suggestedName: filename,
@@ -213,20 +217,34 @@ const App: React.FC = () => {
           }],
         });
         const writable = await handle.createWritable();
-        await writable.write(content);
+        await writable.write(blob);
         await writable.close();
-        await alert('檔案已成功儲存至指定路徑！');
-      } else {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(content);
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", filename);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+        alert('檔案已成功儲存至指定路徑！');
+        return; // Success, exit function
+      } catch (err: any) {
+        // If user actively cancelled, stop here
+        if (err.name === 'AbortError') return;
+        
+        // If it's a security error (e.g. iframe restriction) or other API error, 
+        // log it and fall through to the legacy method automatically.
+        console.warn('showSaveFilePicker failed (likely due to environment), falling back to download:', err);
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') return;
+    }
+
+    // Fallback: Legacy Download via Anchor tag
+    // This runs if showSaveFilePicker is not available OR if it failed (e.g. inside iframe)
+    try {
+      const url = URL.createObjectURL(blob);
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", url);
+      downloadAnchorNode.setAttribute("download", filename);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Fallback download failed:', err);
+      alert('匯出失敗，請重試。');
     }
   };
 
