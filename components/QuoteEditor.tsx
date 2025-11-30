@@ -849,7 +849,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
 
                 <div className="mt-8 pt-8 border-t border-black">
                   <div className="flex justify-between text-[10px] uppercase tracking-widest text-gray-600 font-sans">
-                    <span>Signature <span className="normal-case tracking-normal text-gray-500">(乙方簽認)</span></span>
+                    <span>Signature <span className="normal-case tracking-normal text-gray-500">(甲方簽認)</span></span>
                     <span>Date</span>
                   </div>
                 </div>
