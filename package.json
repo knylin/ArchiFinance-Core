@@ -1,7 +1,7 @@
 {
   "name": "archifinance-core",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "專為建築師事務所設計的離線版財務管理系統",
   "author": "ArchiFinance Team",
   "main": "electron/main.cjs",

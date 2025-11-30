@@ -259,9 +259,9 @@ const App: React.FC = () => {
 
     const filename = `ArchiFinance_FullBackup_${timestamp}.json`;
     
-    // v1.4.0 Structure
+    // v1.5.0 Structure
     const exportData = {
-      version: '1.4.0',
+      version: '1.5.0',
       exportedAt: now.toISOString(),
       projects: projects,
       generalFund: generalTransactions

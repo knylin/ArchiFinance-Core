@@ -18,9 +18,9 @@ export default {
         paper: '#ffffff',
       },
       fontFamily: {
-        sans: ['Inter', 'Microsoft JhengHei', 'sans-serif'],
+        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
         serif: ['Merriweather', 'Noto Serif TC', 'serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        mono: ['Noto Sans Mono', 'monospace'],
       },
       screens: {
         'print': {'raw': 'print'},

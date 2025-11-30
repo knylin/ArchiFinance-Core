@@ -75,7 +75,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate, activeView
         </nav>
         
         <div className="p-4 border-t border-zinc-800 text-xs text-zinc-600 hidden md:block">
-          v1.4.0 • 本地儲存
+          v1.5.0 • 本地儲存
         </div>
       </aside>
 

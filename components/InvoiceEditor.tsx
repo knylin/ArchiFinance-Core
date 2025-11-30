@@ -322,7 +322,7 @@ export const InvoiceEditor: React.FC<InvoiceEditorProps> = ({ project, onUpdate,
 
                  <div className="flex justify-between items-baseline py-4 border-t border-black mt-2">
                    <span className="font-bold text-lg text-gray-900 uppercase font-sans">本次請款</span>
-                   <span className="font-bold text-2xl font-mono text-gray-900">
+                   <span className="font-bold text-3xl font-mono text-gray-900">
                      <span className="text-sm text-gray-700 font-sans font-normal mr-2">TWD</span>
                      {(() => {
                        const sub = draft.totalService + draft.totalExpense;
@@ -336,10 +336,9 @@ export const InvoiceEditor: React.FC<InvoiceEditorProps> = ({ project, onUpdate,
                  </div>
                </div>
             </div>
-          </div>
 
-          {/* Bottom Grid: Contract Status & Bank/Signature (Footer - No Auto Margin) */}
-          <div className="grid grid-cols-2 gap-12 border-t border-black pt-6 mt-8 break-inside-avoid">
+            {/* Bottom Grid: Contract Status & Bank/Signature (Footer - No Auto Margin) */}
+            <div className="grid grid-cols-2 gap-12 border-t border-black pt-6 mt-8 break-inside-avoid">
              {/* Left Column: Contract Status */}
              <div>
                 <h4 className="text-[10px] uppercase tracking-widest text-gray-700 font-bold mb-4 font-sans">Contract Status</h4>
