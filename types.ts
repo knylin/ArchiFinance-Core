@@ -58,6 +58,7 @@ export interface Project {
   id: string;
   name: string;
   client: string;
+  clientTaxId?: string; // Added: Uniform Invoice Number for Client
   location: string;
   projectTypes: string[]; // Changed from projectType?: string to string[]
   // Legacy field for backward compatibility during migration, can be ignored in new logic

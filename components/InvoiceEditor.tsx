@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Project, Invoice, InvoiceItem, AppSettings, BankAccount } from '../types';
 import { Plus, Trash2, Printer, Save, History } from 'lucide-react';
@@ -234,7 +235,6 @@ export const InvoiceEditor: React.FC<InvoiceEditorProps> = ({ project, onUpdate,
               </div>
               <div className="w-1/3 text-right">
                  <div className="font-serif font-bold text-lg text-black">{settings.firmInfo.name}</div>
-                 {/* REMOVED SUB-NAME FROM HEADER */}
                  <div className="text-[10px] tracking-widest text-gray-700 uppercase mb-1 font-sans">{settings.firmInfo.englishName}</div>
                  
                  <div className="text-xs text-gray-700 font-mono">
@@ -249,10 +249,16 @@ export const InvoiceEditor: React.FC<InvoiceEditorProps> = ({ project, onUpdate,
               <div className="w-1/2">
                 <div className="text-[10px] tracking-widest text-gray-600 uppercase mb-0 font-bold">Bill To</div>
                 <div className="text-base font-bold text-gray-900">{project.client}</div>
+                {project.clientTaxId && (
+                  <div className="text-xs text-gray-700 font-mono mt-0.5">統一編號: {project.clientTaxId}</div>
+                )}
               </div>
               <div className="w-1/2 text-right">
                 <div className="text-[10px] tracking-widest text-gray-600 uppercase mb-0 font-bold">Pay To</div>
                 <div className="text-base font-bold text-gray-900">{settings.firmInfo.name} {settings.firmInfo.subName}</div>
+                 {settings.firmInfo.taxId && (
+                  <div className="text-xs text-gray-700 font-mono mt-0.5">統一編號: {settings.firmInfo.taxId}</div>
+                )}
               </div>
             </div>
 
@@ -357,7 +363,7 @@ export const InvoiceEditor: React.FC<InvoiceEditorProps> = ({ project, onUpdate,
                 </div>
              </div>
 
-             {/* Right Column: Bank & Signature */}
+             {/* Right Column: Bank Info Only */}
              <div className="flex flex-col justify-between">
                 <div className="mb-6">
                    <h4 className="text-[10px] uppercase tracking-widest text-gray-700 font-bold mb-2 font-sans">匯款資訊</h4>
@@ -371,13 +377,6 @@ export const InvoiceEditor: React.FC<InvoiceEditorProps> = ({ project, onUpdate,
                    ) : (
                      <div className="text-sm text-red-500 italic">請選擇匯款帳戶</div>
                    )}
-                </div>
-
-                <div className="mt-8 pt-8 border-t border-black">
-                  <div className="flex justify-between text-[10px] uppercase tracking-widest text-gray-600 font-sans">
-                    <span>Signature</span>
-                    <span>Date</span>
-                  </div>
                 </div>
              </div>
           </div>

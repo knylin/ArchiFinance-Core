@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Project, QuoteCategory, QuoteItem, PaymentTerm, TaxMode, AppSettings, BankAccount } from '../types';
 import { Plus, Trash2, Printer, GripVertical, RefreshCw, X, CreditCard, Book, Check } from 'lucide-react';
@@ -15,6 +16,12 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [libraryNotes, setLibraryNotes] = useState<string[]>([]);
   const [newLibNote, setNewLibNote] = useState('');
+
+  // Drag State
+  const [draggedItem, setDraggedItem] = useState<{ catId: string, index: number } | null>(null);
+  const [draggedNoteIndex, setDraggedNoteIndex] = useState<number | null>(null);
+  const [draggedCategoryIndex, setDraggedCategoryIndex] = useState<number | null>(null);
+  const [draggedTermIndex, setDraggedTermIndex] = useState<number | null>(null);
 
   // Load library on mount
   useEffect(() => {
@@ -41,6 +48,31 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
       categories: quote.categories.map(c => c.id === catId ? { ...c, name } : c)
     });
   };
+
+  // --- Category Drag and Drop ---
+  const handleCategoryDragStart = (e: React.DragEvent, index: number) => {
+    // Only allow drag if we are clicking the grip handle (checked via target or assume wrapper)
+    // For simplicity in React, we just track the index
+    setDraggedCategoryIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleCategoryDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Essential to allow drop
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleCategoryDrop = (dropIndex: number) => {
+    if (draggedCategoryIndex === null) return;
+    
+    const newCategories = [...quote.categories];
+    const [movedCat] = newCategories.splice(draggedCategoryIndex, 1);
+    newCategories.splice(dropIndex, 0, movedCat);
+    
+    updateQuote({ ...quote, categories: newCategories });
+    setDraggedCategoryIndex(null);
+  };
+
 
   const addItem = (catId: string) => {
     updateQuote({
@@ -84,6 +116,61 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
     });
   };
 
+  // --- Drag and Drop Handlers for Items ---
+  const handleItemDragStart = (e: React.DragEvent, catId: string, index: number) => {
+    e.stopPropagation(); // Prevent Category drag start
+    setDraggedItem({ catId, index });
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleItemDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); 
+    e.stopPropagation(); // Stop bubbling to category
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleItemDrop = (e: React.DragEvent, targetCatId: string, dropIndex: number) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop bubbling
+
+    if (!draggedItem) return;
+    const { catId: sourceCatId, index: sourceIndex } = draggedItem;
+
+    // Deep copy categories to handle mutation safely
+    const newCategories = quote.categories.map(c => ({
+      ...c,
+      items: [...c.items]
+    }));
+
+    const sourceCat = newCategories.find(c => c.id === sourceCatId);
+    const targetCat = newCategories.find(c => c.id === targetCatId);
+
+    if (!sourceCat || !targetCat) return;
+
+    // Remove from source
+    const [movedItem] = sourceCat.items.splice(sourceIndex, 1);
+
+    // Calculate insertion index
+    let finalDropIndex = dropIndex;
+
+    // If we are in the same category and moving down, the index shifts because we removed an item before the drop point
+    if (sourceCatId === targetCatId && sourceIndex < dropIndex) {
+      finalDropIndex -= 1;
+    }
+
+    // Insert into target
+    // Ensure index doesn't exceed bounds (e.g. dropping at end)
+    if (finalDropIndex >= targetCat.items.length) {
+      targetCat.items.push(movedItem);
+    } else {
+      targetCat.items.splice(finalDropIndex, 0, movedItem);
+    }
+
+    updateQuote({ ...quote, categories: newCategories });
+    setDraggedItem(null);
+  };
+
+
   const updateTerm = (id: string, field: keyof PaymentTerm, value: any) => {
     updateQuote({
       ...quote,
@@ -101,6 +188,23 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
   const deleteTerm = (id: string) => {
     updateQuote({ ...quote, paymentTerms: quote.paymentTerms.filter(t => t.id !== id) });
   };
+
+  // --- Term Drag and Drop ---
+  const handleTermDragStart = (index: number) => {
+    setDraggedTermIndex(index);
+  };
+
+  const handleTermDrop = (dropIndex: number) => {
+    if (draggedTermIndex === null) return;
+    
+    const newTerms = [...quote.paymentTerms];
+    const [movedTerm] = newTerms.splice(draggedTermIndex, 1);
+    newTerms.splice(dropIndex, 0, movedTerm);
+    
+    updateQuote({ ...quote, paymentTerms: newTerms });
+    setDraggedTermIndex(null);
+  };
+
 
   // Note Handlers
   const addNote = (text: string = '') => {
@@ -120,6 +224,26 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
     const newNotes = [...(quote.notes || [])];
     newNotes.splice(index, 1);
     updateQuote({ ...quote, notes: newNotes });
+  };
+
+  // --- Drag and Drop Handlers for Notes ---
+  const handleNoteDragStart = (index: number) => {
+    setDraggedNoteIndex(index);
+  };
+
+  const handleNoteDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleNoteDrop = (dropIndex: number) => {
+    if (draggedNoteIndex === null) return;
+    
+    const newNotes = [...(quote.notes || [])];
+    const [movedNote] = newNotes.splice(draggedNoteIndex, 1);
+    newNotes.splice(dropIndex, 0, movedNote);
+    
+    updateQuote({ ...quote, notes: newNotes });
+    setDraggedNoteIndex(null);
   };
 
   // Library Handlers
@@ -235,10 +359,22 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
           </div>
           
           <div className="space-y-6">
-            {quote.categories.map(cat => (
-              <div key={cat.id} className="bg-zinc-900/50 rounded-lg border border-zinc-800 p-4">
+            {quote.categories.map((cat, index) => (
+              <div 
+                key={cat.id} 
+                className="bg-zinc-900/50 rounded-lg border border-zinc-800 p-4"
+                draggable
+                onDragStart={(e) => handleCategoryDragStart(e, index)}
+                onDragOver={handleCategoryDragOver}
+                onDrop={() => handleCategoryDrop(index)}
+              >
                 <div className="flex items-center gap-2 mb-3">
-                  <GripVertical className="text-zinc-600 cursor-grab" size={16} />
+                  <div className="text-zinc-600 cursor-move hover:text-zinc-400" title="拖曳調整分類順序">
+                    <GripVertical size={18} />
+                  </div>
+                  <div className="text-zinc-600">
+                     <span className="text-xs font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">#{index + 1}</span>
+                  </div>
                   <input 
                     className="bg-transparent text-teal-400 font-medium focus:outline-none focus:border-b border-zinc-700 w-full font-sans"
                     value={cat.name}
@@ -250,9 +386,19 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
                   </button>
                 </div>
                 
-                <div className="space-y-2 pl-4">
-                  {cat.items.map(item => (
-                    <div key={item.id} className="flex gap-2 items-start group">
+                <div className="space-y-2 pl-2">
+                  {cat.items.map((item, itemIndex) => (
+                    <div 
+                      key={item.id} 
+                      className="flex gap-2 items-start group"
+                      draggable
+                      onDragStart={(e) => handleItemDragStart(e, cat.id, itemIndex)}
+                      onDragOver={handleItemDragOver}
+                      onDrop={(e) => handleItemDrop(e, cat.id, itemIndex)}
+                    >
+                      <div className="pt-2 text-zinc-600 cursor-move hover:text-zinc-400" title="拖曳調整項目順序">
+                        <GripVertical size={16} />
+                      </div>
                       <div className="flex-1 space-y-1">
                          <input 
                           className="w-full bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-sm text-zinc-300 focus:border-teal-500/50 focus:outline-none font-sans"
@@ -280,7 +426,17 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
                       </button>
                     </div>
                   ))}
-                  <button onClick={() => addItem(cat.id)} className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 mt-2 font-sans">
+                  
+                  {/* Drop zone for moving items to the end of this category or into an empty category */}
+                  <div 
+                    className={`h-6 mt-2 rounded border-2 border-dashed border-zinc-800/50 hover:border-teal-500/50 hover:bg-teal-900/10 transition-colors flex items-center justify-center text-[10px] text-zinc-700 ${draggedItem && draggedItem.catId !== cat.id ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
+                    onDragOver={handleItemDragOver}
+                    onDrop={(e) => handleItemDrop(e, cat.id, cat.items.length)}
+                  >
+                     {draggedItem ? '拖曳至此分類底部' : '拖曳至此'}
+                  </div>
+
+                  <button onClick={() => addItem(cat.id)} className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 mt-2 font-sans ml-6">
                     <Plus size={12} /> 新增項目
                   </button>
                 </div>
@@ -358,8 +514,18 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
              </span>
           </div>
           <div className="space-y-2">
-            {quote.paymentTerms.map(term => (
-              <div key={term.id} className="flex gap-2 items-center bg-zinc-900/30 p-2 rounded border border-zinc-800/50">
+            {quote.paymentTerms.map((term, index) => (
+              <div 
+                key={term.id} 
+                className="flex gap-2 items-center bg-zinc-900/30 p-2 rounded border border-zinc-800/50"
+                draggable
+                onDragStart={() => handleTermDragStart(index)}
+                onDragOver={handleNoteDragOver} // Reuse existing preventDefault
+                onDrop={() => handleTermDrop(index)}
+              >
+                <div className="text-zinc-600 cursor-move hover:text-zinc-400" title="拖曳調整順序">
+                  <GripVertical size={16} />
+                </div>
                 <input 
                   className="flex-1 bg-transparent border-b border-transparent hover:border-zinc-700 focus:border-teal-500 focus:outline-none px-2 py-1 text-sm text-zinc-300 font-sans"
                   value={term.description}
@@ -403,7 +569,17 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
           </div>
           <div className="space-y-2">
             {(quote.notes || []).map((note, idx) => (
-              <div key={idx} className="flex gap-2 items-start">
+              <div 
+                key={idx} 
+                className="flex gap-2 items-start"
+                draggable
+                onDragStart={() => handleNoteDragStart(idx)}
+                onDragOver={handleNoteDragOver}
+                onDrop={() => handleNoteDrop(idx)}
+              >
+                 <div className="pt-2 text-zinc-600 cursor-move hover:text-zinc-400" title="拖曳調整順序">
+                   <GripVertical size={16} />
+                 </div>
                  <div className="pt-2 text-zinc-600 text-xs font-mono select-none">{idx + 1}.</div>
                  <textarea 
                    rows={2}
@@ -672,7 +848,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ project, onUpdate, set
 
                 <div className="mt-8 pt-8 border-t border-black">
                   <div className="flex justify-between text-[10px] uppercase tracking-widest text-gray-600 font-sans">
-                    <span>Signature</span>
+                    <span>Signature <span className="normal-case tracking-normal text-gray-500">(乙方簽認)</span></span>
                     <span>Date</span>
                   </div>
                 </div>

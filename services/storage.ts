@@ -177,6 +177,7 @@ export const createEmptyProject = (): Project => ({
   id: crypto.randomUUID(),
   name: '新專案',
   client: '業主名稱',
+  clientTaxId: '', // Default empty
   location: '台北市, 台灣',
   projectTypes: ['私人住宅'], // Default as array
   status: 'active',

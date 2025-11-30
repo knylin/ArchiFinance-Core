@@ -48,8 +48,8 @@ npm run build:exe
 
 打包完成後，請前往 `dist_electron` 資料夾，您會看到：
 
-1.  **ArchiFinance Core Setup 1.2.0.exe**: 安裝檔 (會安裝到開始選單)。
-2.  **ArchiFinance Core 1.2.0.exe**: 免安裝版 (Portable)，直接點擊即可執行，適合放在隨身碟。
+1.  **ArchiFinance Core Setup 1.4.0.exe**: 安裝檔 (會安裝到開始選單)。
+2.  **ArchiFinance Core 1.4.0.exe**: 免安裝版 (Portable)，直接點擊即可執行，適合放在隨身碟。
 
 ---
 

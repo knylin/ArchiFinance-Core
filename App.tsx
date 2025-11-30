@@ -150,9 +150,9 @@ const App: React.FC = () => {
       try {
         const json = JSON.parse(event.target?.result as string);
         
-        // Scenario 1: v1.3.0 Full Backup (Object with projects and generalFund)
+        // Scenario 1: Full Backup (Object with projects and generalFund)
         if (json.projects && Array.isArray(json.projects)) {
-          if (confirm(`偵測到完整備份檔案 (v1.3+)。\n包含 ${json.projects.length} 個專案與公基金資料。\n\n確定要「覆蓋」目前的資料嗎？`)) {
+          if (confirm(`偵測到完整備份檔案。\n包含 ${json.projects.length} 個專案與公基金資料。\n\n確定要「覆蓋」目前的資料嗎？`)) {
              setProjects(json.projects);
              if (json.generalFund) setGeneralTransactions(json.generalFund);
              alert('匯入成功！系統資料已還原。');
@@ -241,9 +241,9 @@ const App: React.FC = () => {
 
     const filename = `ArchiFinance_FullBackup_${timestamp}.json`;
     
-    // v1.3.0 Structure
+    // v1.4.0 Structure
     const exportData = {
-      version: '1.3.0',
+      version: '1.4.0',
       exportedAt: now.toISOString(),
       projects: projects,
       generalFund: generalTransactions

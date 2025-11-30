@@ -23,6 +23,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
   const [editForm, setEditForm] = useState({
     name: project.name,
     client: project.client,
+    clientTaxId: project.clientTaxId || '',
     location: project.location,
     taxMode: project.taxMode,
     status: project.status,
@@ -107,11 +108,20 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onUpdate,
                 />
               </div>
               <div className="col-span-1">
-                <label className="block text-xs text-zinc-500 mb-1">業主</label>
+                <label className="block text-xs text-zinc-500 mb-1">業主名稱</label>
                 <input 
                   className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-sm text-white"
                   value={editForm.client} 
                   onChange={e => setEditForm({...editForm, client: e.target.value})} 
+                />
+              </div>
+               <div className="col-span-1">
+                <label className="block text-xs text-zinc-500 mb-1">業主統編 (選填)</label>
+                <input 
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-sm text-white font-mono"
+                  value={editForm.clientTaxId} 
+                  onChange={e => setEditForm({...editForm, clientTaxId: e.target.value})} 
+                  placeholder="12345678"
                 />
               </div>
                <div className="col-span-1">
