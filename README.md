@@ -6,13 +6,14 @@
 
 ## 🌟 專案簡介
 
-ArchiFinance Core 是一個現代化的建築專案財務管理工具。本版本支援打包為 Windows 應用程式 (.exe)，可完全離線使用。
+ArchiFinance Core 是一個現代化的建築專案財務管理工具。本版本 (v2.0) 支援打包為 Windows 應用程式 (.exe)，可完全離線使用，並新增了佈景主題切換功能。
 
 **特色：**
 *   **完全離線**：資料儲存於本地檔案系統與 LocalStorage，斷網也能操作。
 *   **桌面應用程式**：提供安裝版與免安裝版 (Portable) EXE。
 *   **A4 輸出**：自動排版的報價單與請款單 PDF 預覽。
 *   **成本損益**：即時計算專案淨利。
+*   **佈景主題**：支援深色、淺色或跟隨系統設定。
 
 ---
 
@@ -48,8 +49,8 @@ npm run build:exe
 
 打包完成後，請前往 `dist_electron` 資料夾，您會看到：
 
-1.  **ArchiFinance Core Setup 1.5.0.exe**: 安裝檔 (會安裝到開始選單)。
-2.  **ArchiFinance Core 1.5.0.exe**: 免安裝版 (Portable)，直接點擊即可執行，適合放在隨身碟。
+1.  **ArchiFinance Core Setup 2.0.0.exe**: 安裝檔 (會安裝到開始選單)。
+2.  **ArchiFinance Core 2.0.0.exe**: 免安裝版 (Portable)，直接點擊即可執行，適合放在隨身碟。
 
 ---
 

@@ -1,5 +1,6 @@
 
 export type TaxMode = 'none' | 'vat5' | 'wht10';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface QuoteItem {
   id: string;
@@ -116,6 +117,7 @@ export interface AppSettings {
   bankAccounts: BankAccount[];
   projectTypes: string[]; // List of available project types
   transactionCategories: TransactionCategory[]; // New: Dynamic categories
+  theme: ThemeMode; // New in v2.0
 }
 
 export type ViewState = 'dashboard' | 'finance' | 'project-detail' | 'reports' | 'settings';

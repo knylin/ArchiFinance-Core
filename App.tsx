@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Project, ViewState, AppSettings, GeneralTransaction } from './types';
+import { Project, ViewState, AppSettings, GeneralTransaction, ThemeMode } from './types';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { ProjectDetail } from './components/ProjectDetail';
@@ -38,6 +38,34 @@ const App: React.FC = () => {
     setGeneralTransactions(loadedGeneral);
   }, []);
 
+  // Theme Handling Effect
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const applyTheme = () => {
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = settings.theme === 'dark' || (settings.theme === 'system' && systemDark);
+      
+      if (isDark) {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    };
+
+    applyTheme();
+
+    // Listen for system changes if mode is system
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (settings.theme === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [settings.theme]);
+
   // Persistence
   useEffect(() => {
     saveProjects(projects);
@@ -68,6 +96,13 @@ const App: React.FC = () => {
     setAppSettings(newSettings);
     saveSettings(newSettings);
     updateChangesState(true);
+  };
+  
+  const handleThemeChange = (mode: ThemeMode) => {
+    const newSettings = { ...settings, theme: mode };
+    setAppSettings(newSettings);
+    saveSettings(newSettings);
+    // Theme is visual preference, doesn't necessarily need "dirty" state for backup, but safe to add
   };
 
   // Handler for Server Sync
@@ -259,9 +294,9 @@ const App: React.FC = () => {
 
     const filename = `ArchiFinance_FullBackup_${timestamp}.json`;
     
-    // v1.5.0 Structure
+    // v2.0.0 Structure
     const exportData = {
-      version: '1.5.0',
+      version: '2.0.0',
       exportedAt: now.toISOString(),
       projects: projects,
       generalFund: generalTransactions
@@ -295,6 +330,8 @@ const App: React.FC = () => {
         setActiveView(view);
         if (view === 'dashboard') setSelectedProjectId(null);
       }}
+      currentTheme={settings.theme}
+      onThemeChange={handleThemeChange}
     >
       {/* Startup Dialog */}
       {showStartupDialog && (

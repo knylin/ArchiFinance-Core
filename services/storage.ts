@@ -114,6 +114,7 @@ export const loadNoteLibrary = (): string[] => {
 // --- Settings Functions ---
 
 export const defaultSettings: AppSettings = {
+  theme: 'system', // v2.0
   firmInfo: {
     name: '您的事務所名稱',
     subName: '',
@@ -179,6 +180,10 @@ export const loadSettings = (): AppSettings => {
       // Ensure transactionCategories exists
       if (!parsed.transactionCategories) {
         parsed.transactionCategories = defaultSettings.transactionCategories;
+      }
+      // Ensure theme exists
+      if (!parsed.theme) {
+        parsed.theme = defaultSettings.theme;
       }
       return parsed;
     }

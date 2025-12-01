@@ -29,3 +29,13 @@ body {
     overflow: visible;
   }
 }
+
+/* Fix for dark mode form inputs (Calendar picker) */
+:root {
+  color-scheme: dark;
+}
+
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
