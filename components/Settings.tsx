@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AppSettings, BankAccount, Project } from '../types';
 import { Save, Plus, Trash2, Building2, CreditCard, Tag, DownloadCloud, AlertTriangle } from 'lucide-react';
@@ -179,7 +180,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                     className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:border-teal-500 focus:outline-none"
                     value={formData.firmInfo.name}
                     onChange={e => handleFirmChange('name', e.target.value)}
-                    placeholder="例如：常日建築"
+                    placeholder="例如：我的建築事務所"
                   />
                 </div>
                 <div className="space-y-2">
@@ -188,7 +189,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                     className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:border-teal-500 focus:outline-none"
                     value={formData.firmInfo.subName || ''}
                     onChange={e => handleFirmChange('subName', e.target.value)}
-                    placeholder="例如：+ 將來建築師事務所"
+                    placeholder="例如：聯合建築師事務所"
                   />
                 </div>
                 <div className="space-y-2">
@@ -197,7 +198,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                     className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:border-teal-500 focus:outline-none"
                     value={formData.firmInfo.englishName}
                     onChange={e => handleFirmChange('englishName', e.target.value)}
-                    placeholder="例如：Office of Architecture"
+                    placeholder="例如：My Architecture Firm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -224,7 +225,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                     className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:border-teal-500 focus:outline-none"
                     value={formData.firmInfo.phone}
                     onChange={e => handleFirmChange('phone', e.target.value)}
-                    placeholder="例如：0912-345678"
+                    placeholder="例如：02-1234-5678"
                   />
                 </div>
                 <div className="space-y-2">
@@ -253,7 +254,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                           className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-sm text-white focus:border-teal-500 focus:outline-none"
                           value={account.bankName}
                           onChange={e => updateBankAccount(account.id, 'bankName', e.target.value)}
-                          placeholder="例如：玉山銀行 (808)"
+                          placeholder="例如：範例銀行 (000)"
                         />
                       </div>
                       <div className="space-y-1">
@@ -262,7 +263,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                           className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-sm text-white focus:border-teal-500 focus:outline-none"
                           value={account.branch}
                           onChange={e => updateBankAccount(account.id, 'branch', e.target.value)}
-                          placeholder="例如：朴子分行"
+                          placeholder="例如：範例分行"
                         />
                       </div>
                       <div className="space-y-1">
@@ -280,7 +281,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSave, onSyncServ
                           className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-sm text-white focus:border-teal-500 focus:outline-none"
                           value={account.accountName}
                           onChange={e => updateBankAccount(account.id, 'accountName', e.target.value)}
-                          placeholder="例如：常日有限公司"
+                          placeholder="例如：公司戶名"
                         />
                       </div>
                     </div>

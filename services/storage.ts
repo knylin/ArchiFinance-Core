@@ -115,27 +115,20 @@ export const loadNoteLibrary = (): string[] => {
 
 export const defaultSettings: AppSettings = {
   firmInfo: {
-    name: '常日建築',
-    subName: '+ 將來建築師事務所',
-    englishName: 'Office of Architecture',
-    address: '台北市, 台灣',
-    phone: '0937-200053',
+    name: '您的事務所名稱',
+    subName: '',
+    englishName: 'Your Architecture Firm',
+    address: '事務所地址',
+    phone: '02-1234-5678',
     taxId: ''
   },
   bankAccounts: [
     { 
       id: 'default-company', 
-      bankName: '玉山銀行 (808)', 
-      branch: '朴子分行', 
-      accountNumber: '1218-940-023000', 
-      accountName: '常日有限公司' 
-    },
-    { 
-      id: 'default-personal', 
-      bankName: '玉山銀行 (808)', 
-      branch: '朴子分行', 
-      accountNumber: '1218-976-005853', 
-      accountName: '林裕庭' 
+      bankName: '範例銀行 (000)', 
+      branch: '範例分行', 
+      accountNumber: '123-456-7890', 
+      accountName: '公司戶名' 
     }
   ],
   projectTypes: [
@@ -178,7 +171,7 @@ export const createEmptyProject = (): Project => ({
   name: '新專案',
   client: '業主名稱',
   clientTaxId: '', // Default empty
-  location: '台北市, 台灣',
+  location: '專案地點',
   projectTypes: ['私人住宅'], // Default as array
   status: 'active',
   taxMode: 'vat5',
